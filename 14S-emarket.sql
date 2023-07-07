@@ -82,3 +82,62 @@ GROUP BY ProductoID;
 SELECT MAX(precioUnitario)
 FROM facturaDetalle;
 
+#Generar un listado de todas las facturas del empleado 'Buchanan'.
+SELECT CONCAT(empleados.nombre, " ", empleados.apellido) AS "Nombre completo", facturas.*
+FROM facturas
+INNER JOIN empleados ON facturas.EmpleadoID = empleados.EmpleadoID
+WHERE empleados.apellido = 'Buchanan';
+
+#Generar un listado con todos los campos de las facturas del correo 'Speedy Express'.
+SELECT correos.compania, facturas.*
+FROM facturas
+INNER JOIN correos ON facturas.enviovia = correos.correoid
+WHERE correos.compania = 'Speedy Express';
+
+#Generar un listado de todas las facturas con el nombre y apellido de los empleados.
+SELECT CONCAT(empleados.nombre, empleados.apellido) AS "Nombre y apellido del empleado", COUNT(*) AS Facturas
+FROM facturas
+INNER JOIN empleados ON facturas.empleadoid = empleados.empleadoid
+GROUP BY facturas.EmpleadoID
+ORDER BY Facturas DESC;
+
+#Mostrar un listado de las facturas de todos los clientes “Owner” y país de envío “USA”.
+SELECT clientes.titulo, clientes.contacto, facturas.*
+FROM facturas
+INNER JOIN clientes ON facturas.ClienteID = clientes.clienteid
+WHERE clientes.titulo = 'Owner'
+AND 
+facturas.paisEnvio = "USA";
+
+#Mostrar todos los campos de las facturas del empleado cuyo apellido sea “Leverling” o que incluyan el producto id = “42”.
+SELECT empleados.apellido, facturas.*
+FROM facturas
+INNER JOIN empleados ON facturas.empleadoid = empleados.empleadoid
+WHERE empleados.apellido = 'Leverling';
+
+#Mostrar todos los campos de las facturas del empleado cuyo apellido sea 
+#“Leverling” y que incluya los producto id = “80” o ”42”.
+SELECT productos.productoid, empleados.apellido, facturas.*
+FROM facturas
+INNER JOIN facturadetalle ON facturas.facturaid = facturadetalle.facturaid
+INNER JOIN productos ON facturadetalle.productoid = productos.productoid
+INNER JOIN empleados ON facturas.empleadoid = empleados.empleadoid
+WHERE empleados.apellido = 'Leverling' AND (productos.productoid = 80 OR productos.productoid = 42);
+
+#Generar un listado con los cinco mejores clientes, según sus importes de compras total (PrecioUnitario * Cantidad).
+SELECT clientes.titulo, SUM(facturadetalle.preciounitario * facturadetalle.cantidad) AS compras_totales
+FROM clientes
+INNER JOIN facturas ON clientes.clienteid = facturas.clienteid
+INNER JOIN facturadetalle ON facturas.facturaid = facturadetalle.facturaid
+GROUP BY clientes.titulo
+ORDER BY compras_totales desc
+LIMIT 5;
+
+#Generar un listado de facturas, con los campos id, nombre y apellido del cliente,
+#fecha de factura, país de envío, Total, ordenado de manera descendente por
+#fecha de factura y limitado a 10 filas.
+SELECT clientes.clienteid, clientes.contacto, date_format(facturas.fechafactura, "%d %M %Y") AS fecha
+FROM facturas
+INNER JOIN clientes ON facturas.clienteid = clientes.clienteid
+ORDER BY facturas.fechafactura
+LIMIT 10;
